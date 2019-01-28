@@ -368,7 +368,7 @@
 		<profile>
 			<id>vavr1</id>
 			<properties>
-				<vavr>1.0.0-SNAPSHOT</vavr>
+				<vavr>0.10.2-SNAPSHOT</vavr>
 			</properties>
 			<repositories>
 				<repository>
