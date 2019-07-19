@@ -16,11 +16,9 @@
 package org.springframework.data.repository.query;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -53,9 +51,11 @@ public class ParametersParameterAccessor implements ParameterAccessor {
 		Assert.isTrue(parameters.getNumberOfParameters() == values.length, "Invalid number of parameters given!");
 
 		this.parameters = parameters;
-		this.values = Arrays.stream(values)//
-				.map(QueryExecutionConverters::unwrap)//
-				.collect(Collectors.toList());
+		this.values = new ArrayList<>(values.length);
+
+		for (Object value : values) {
+			this.values.add(QueryExecutionConverters.unwrap(value));
+		}
 	}
 
 	/**
@@ -65,6 +65,15 @@ public class ParametersParameterAccessor implements ParameterAccessor {
 	 */
 	public Parameters<?, ?> getParameters() {
 		return parameters;
+	}
+
+	/**
+	 * Returns the potentially unwrapped values.
+	 *
+	 * @return
+	 */
+	protected List<Object> getValues() {
+		return this.values;
 	}
 
 	/*
@@ -151,8 +160,13 @@ public class ParametersParameterAccessor implements ParameterAccessor {
 	 */
 	public boolean hasBindableNullValue() {
 
-		return parameters.getBindableParameters().stream()//
-				.anyMatch(it -> values.get(it.getIndex()) == null);
+		for (Parameter parameter : parameters.getBindableParameters()) {
+			if (values.get(parameter.getIndex()) == null) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/*
