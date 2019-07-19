@@ -107,6 +107,11 @@ public interface PersistentPropertyAccessor<T> {
 	 */
 	@Nullable
 	default Object getProperty(PersistentPropertyPath<? extends PersistentProperty<?>> path) {
+		return getProperty(path, new TraversalContext());
+	}
+
+	@Nullable
+	default Object getProperty(PersistentPropertyPath<? extends PersistentProperty<?>> path, TraversalContext context) {
 
 		Object bean = getBean();
 		Object current = bean;
@@ -128,7 +133,7 @@ public interface PersistentPropertyAccessor<T> {
 			PersistentEntity<?, ? extends PersistentProperty<?>> entity = property.getOwner();
 			PersistentPropertyAccessor<Object> accessor = entity.getPropertyAccessor(current);
 
-			current = accessor.getProperty(property);
+			current = context.postProcess(property, accessor.getProperty(property));
 		}
 
 		return current;

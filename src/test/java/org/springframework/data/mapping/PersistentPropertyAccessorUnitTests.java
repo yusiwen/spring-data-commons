@@ -20,8 +20,13 @@ import static org.assertj.core.api.Assertions.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.experimental.Wither;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -133,9 +138,41 @@ public class PersistentPropertyAccessorUnitTests {
 		assertThat(convertingAccessor.getBean().getCustomer().getFirstname()).isEqualTo("2");
 	}
 
+	@Test
+	public void usesTraversalContextToTraverseCollections() {
+
+		LineItem item = new LineItem("Description");
+		Order order = new Order(new Customer("Firstname"), Arrays.asList(item));
+
+		PersistentEntity<Object, SamplePersistentProperty> entity = context.getPersistentEntity(Order.class);
+		PersistentProperty<?> itemsProperty = entity.getRequiredPersistentProperty("lineItems");
+
+		PersistentPropertyAccessor<Order> accessor = entity.getPropertyAccessor(order);
+
+		TraversalContext traversalContext = new TraversalContext() //
+				.registerHandler(itemsProperty, List.class, it -> it.get(0));
+
+		PersistentPropertyPath<SamplePersistentProperty> propertyPath = context
+				.getPersistentPropertyPath("lineItems.description", Order.class);
+
+		assertThat(accessor.getProperty(propertyPath, traversalContext)).isEqualTo(item.getDescription());
+	}
+
 	@Value
+	@RequiredArgsConstructor
 	static class Order {
+
 		Customer customer;
+		List<LineItem> lineItems;
+
+		public Order(Customer customer) {
+			this(customer, Collections.emptyList());
+		}
+	}
+
+	@Value
+	static class LineItem {
+		String description;
 	}
 
 	@Data
