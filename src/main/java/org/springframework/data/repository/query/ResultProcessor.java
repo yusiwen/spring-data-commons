@@ -96,7 +96,12 @@ public class ResultProcessor {
 
 		Assert.notNull(accessor, "Parameter accessor must not be null!");
 
-		return accessor.getDynamicProjection().map(this::withType).orElse(this);
+		Class<?> projection = accessor.findDynamicProjection();
+		if (projection == null) {
+			return this;
+		}
+
+		return withType(projection);
 	}
 
 	/**

@@ -28,7 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Unit tests for {@link Lazy}.
- * 
+ *
  * @author Oliver Gierke
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -84,6 +84,11 @@ public class LazyUnitTests {
 	@Test
 	public void allowsNullableValueLookupViaOptional() {
 		assertThat(Lazy.of(() -> null).getOptional()).isEmpty();
+	}
+
+	@Test
+	public void allowsNullableValue() {
+		assertThat(Lazy.of(() -> null).getNullable()).isNull();
 	}
 
 	@Test

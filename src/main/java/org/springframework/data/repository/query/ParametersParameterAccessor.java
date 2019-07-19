@@ -15,6 +15,7 @@
  */
 package org.springframework.data.repository.query;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -24,12 +25,14 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.util.QueryExecutionConverters;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
  * {@link ParameterAccessor} implementation using a {@link Parameters} instance to find special parameters.
  *
  * @author Oliver Gierke
+ * @author Mark Paluch
  */
 public class ParametersParameterAccessor implements ParameterAccessor {
 
@@ -106,6 +109,21 @@ public class ParametersParameterAccessor implements ParameterAccessor {
 	public Optional<Class<?>> getDynamicProjection() {
 		return Optional.ofNullable(
 				parameters.hasDynamicProjection() ? (Class<?>) values.get(parameters.getDynamicProjectionIndex()) : null);
+	}
+
+	/**
+	 * Returns the dynamic projection type if available, {@literal null} otherwise.
+	 *
+	 * @return
+	 */
+	@Nullable
+	public Class<?> findDynamicProjection() {
+
+		if (parameters.hasDynamicProjection()) {
+			return (Class<?>) values.get(parameters.getDynamicProjectionIndex());
+		}
+
+		return null;
 	}
 
 	/**
