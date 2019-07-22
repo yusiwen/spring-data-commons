@@ -52,6 +52,7 @@ public class QueryMethod {
 	private final Parameters<?, ?> parameters;
 	private final ResultProcessor resultProcessor;
 	private final Lazy<Class<?>> domainClass;
+	private final Lazy<Boolean> isCollectionQuery;
 
 	/**
 	 * Creates a new {@link QueryMethod} from the given parameters. Looks up the correct query to use for following
@@ -111,6 +112,7 @@ public class QueryMethod {
 		});
 
 		this.resultProcessor = new ResultProcessor(this, factory);
+		this.isCollectionQuery = Lazy.of(this::calculateIsCollectionQuery);
 	}
 
 	/**
@@ -170,6 +172,10 @@ public class QueryMethod {
 	 * @return
 	 */
 	public boolean isCollectionQuery() {
+		return isCollectionQuery.get();
+	}
+
+	private boolean calculateIsCollectionQuery() {
 
 		if (isPageQuery() || isSliceQuery()) {
 			return false;
