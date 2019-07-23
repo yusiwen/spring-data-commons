@@ -73,7 +73,6 @@ class QueryExecutionResultHandler {
 		MethodParameter parameter = new MethodParameter(method, -1);
 
 		return postProcessInvocationResult(result, 0, parameter);
-
 	}
 
 	/**
@@ -87,6 +86,8 @@ class QueryExecutionResultHandler {
 	@Nullable
 	Object postProcessInvocationResult(@Nullable Object result, int nestingLevel, MethodParameter parameter) {
 
+		result = unwrapOptional(result);
+
 		TypeDescriptor returnTypeDescriptor = TypeDescriptor.nested(parameter, nestingLevel);
 
 		if (returnTypeDescriptor == null) {
@@ -94,9 +95,6 @@ class QueryExecutionResultHandler {
 		}
 
 		Class<?> expectedReturnType = returnTypeDescriptor.getType();
-
-		result = unwrapOptional(result);
-
 		if (QueryExecutionConverters.supports(expectedReturnType)) {
 
 			// For a wrapper type, try nested resolution first
